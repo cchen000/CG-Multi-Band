@@ -1,0 +1,52 @@
+# Band Profile of German 9-node 34 link network;
+
+# s < d;
+link_1to4 : UBand, CBand, LBand
+link_1to5 : UBand, CBand, LBand
+link_1to6 : UBand, CBand, LBand
+
+link_2to3 : UBand, CBand, LBand
+link_2to4 : UBand, CBand, LBand
+
+link_3to4 : UBand, CBand, LBand
+link_3to5 : UBand, CBand, LBand
+link_3to6 : UBand, CBand, LBand
+link_3to7 : UBand, CBand, LBand
+link_3to8 : UBand, CBand, LBand
+link_3to9 : UBand, CBand, LBand
+
+link_4to5 : UBand, CBand, LBand
+link_4to6 : UBand, CBand, LBand
+
+link_6to8 : UBand, CBand, LBand
+
+link_7to8 : UBand, CBand, LBand
+link_7to9 : UBand, CBand, LBand
+
+link_8to9 : UBand, CBand, LBand
+
+# s > d;
+
+link_4to1 : UBand, CBand, LBand
+link_5to1 : UBand, CBand, LBand
+link_6to1 : UBand, CBand, LBand
+
+link_3to2 : UBand, CBand, LBand
+link_4to2 : UBand, CBand, LBand
+
+link_4to3 : UBand, CBand, LBand
+link_5to3 : UBand, CBand, LBand
+link_6to3 : UBand, CBand, LBand
+link_7to3 : UBand, CBand, LBand
+link_8to3 : UBand, CBand, LBand
+link_9to3 : UBand, CBand, LBand
+
+link_5to4 : UBand, CBand, LBand
+link_6to4 : UBand, CBand, LBand
+
+link_8to6 : UBand, CBand, LBand
+
+link_8to7 : UBand, CBand, LBand
+link_9to7 : UBand, CBand, LBand
+
+link_9to8 : UBand, CBand, LBand
