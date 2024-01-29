@@ -1,0 +1,44 @@
+##############################
+# 
+# Descipriton of network raw information.
+#
+##############################
+# 
+# 
+# Directed vs. undirected graph;
+# Edge adjacent list vs. distance matrix;
+# Node coordinate vs. no node coordinate's;
+# 
+# 
+##############################
+# **Format description of different labels**
+# ------------------------------------------------------------
+# Symbols 				Type 1 					Type 2
+# ------------------------------------------------------------
+# Direction 	 		'directed' 				'undirected'
+# LinkRepresentation 	'edgeadjacent'			'distancematrix'
+# NodeCoordinate 		TRUE					FALSE
+# ------------------------------------------------------------
+##############################
+
+
+
+==============================
+Format 1: #tag: #Direction1#LinkRepresentation1#NodeCoordinateTRUE
+==============================
+
+The first row contains two elements, N and E where N is node number, E is edge number, N<=1e3, E<=1e6.
+
+Next E rows contains fiber information. Each row has 3 elements, edge's node 1, edge's node 2, and edge length.
+
+Next N rows contains node coordinate. Each row has 3 elements, node ID, node coordinate x, and node coordinate y.
+
+
+==============================
+Format 2: #tag: #Direction1#LinkRepresentation2#NodeCoordinateFALSE
+==============================
+
+The first row contains two elements, N and E where N is node number, E is edge number, N<=1e3, E<=1e6.
+
+The next N rows describe distance matrix of a network. 
+For a row i (1<=i<=N), it has N elements (1<=j<=N). Dij denotes the length of a link i-j. This equals 0 if link i-j does not connected.

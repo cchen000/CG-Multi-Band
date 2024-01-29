@@ -1,0 +1,75 @@
+# Band Profile of German 14-node 46 link network;
+
+# s < d;
+link_1to5 : ULCBand
+link_1to6 : ULCBand
+link_1to4 : ULCBand
+
+link_2to13 : ULCBand
+link_2to11 : ULCBand
+
+link_3to4 : ULCBand
+link_3to6 : ULCBand
+link_3to8 : ULCBand
+link_3to9 : ULCBand
+link_3to13 : ULCBand
+
+link_4to5 : ULCBand
+link_4to6 : ULCBand
+link_4to10 : ULCBand
+link_4to12 : ULCBand
+
+link_5to10 : ULCBand
+
+link_6to8 : ULCBand
+
+link_7to8 : ULCBand
+link_7to14 : ULCBand
+
+link_8to9 : ULCBand
+
+link_9to14 : ULCBand
+
+link_10to11 : ULCBand
+
+link_11to12 : ULCBand
+
+link_12to13 : ULCBand
+
+
+# s > d;
+link_5to1 : ULCBand
+link_6to1 : ULCBand
+link_4to1 : ULCBand
+
+link_13to2 : ULCBand
+link_11to2 : ULCBand
+
+link_4to3 : ULCBand
+link_6to3 : ULCBand
+link_8to3 : ULCBand
+link_9to3 : ULCBand
+link_13to3 : ULCBand
+
+link_5to4 : ULCBand
+link_6to4 : ULCBand
+link_10to4 : ULCBand
+link_12to4 : ULCBand
+
+link_10to5 : ULCBand
+
+link_8to6 : ULCBand
+
+link_8to7 : ULCBand
+link_14to7 : ULCBand
+
+link_9to8 : ULCBand
+
+link_14to9 : ULCBand
+
+link_11to10 : ULCBand
+
+link_12to11 : ULCBand
+
+link_13to12 : ULCBand
+

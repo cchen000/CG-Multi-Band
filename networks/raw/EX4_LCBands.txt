@@ -1,0 +1,17 @@
+# Band Profile of 4 node-example;
+
+# s < d
+link_1to2 : LBand, CBand
+link_1to3 : LBand, CBand
+link_1to4 : LBand, CBand
+link_2to1 : LBand, CBand
+link_2to4 : LBand, CBand
+link_3to4 : LBand, CBand
+link_4to3 : LBand, CBand
+
+
+# s > d
+# link_2to1 : CBand, LBand
+# link_4to1 : CBand, LBand
+# link_3to2 : CBand, LBand
+# link_4to3 : CBand, LBand
