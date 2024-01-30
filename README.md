@@ -35,7 +35,6 @@ Hope you can enjoy it!
 - Gurobi: ver 9.0 is used for the paper
 - [YAMLIP-R20200930](https://github.com/yalmip/YALMIP/releases) (strongly recommended if using Gurobi 9.0, as less compatible issues between them)
 - MATLAB: R2017b is used
-- [export_fig](https://github.com/altmany/export_fig) (hopefully)
 
 
 
@@ -76,6 +75,13 @@ Hope you can enjoy it!
         itemName, ...
         'test.txt', 'w+');
     type test.txt
+
+Some example results:
+
+![DT9_Pricing](media/DT9_Pricing.gif)
+![DT9_RMP_LP](media/DT9_RMP_LP.gif)
+![DT9_summary](media/DT9_summary.png)
+
 
 
 ![Comparison](media/CG_FFkSP_kSPFF.PNG)
