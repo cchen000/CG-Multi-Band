@@ -80,7 +80,7 @@ Some example results:
 
 ![DT9_Pricing](media/DT9_Pricing.gif)
 ![DT9_RMP_LP](media/DT9_RMP_LP.gif)
-![DT9_summary](media/DT9_summary.png)
+![DT9_summary](media/DT9_summary.PNG)
 
 
 
