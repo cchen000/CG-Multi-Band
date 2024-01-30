@@ -76,6 +76,13 @@ Hope you can enjoy it!
         'test.txt', 'w+');
     type test.txt
 
+Some example results:
+
+![DT9_Pricing](media/DT9_Pricing.gif)
+![DT9_RMP_LP](media/DT9_RMP_LP.gif)
+![DT9_summary](media/DT9_summary.png)
+
+
 
 ![Comparison](media/CG_FFkSP_kSPFF.PNG)
 
