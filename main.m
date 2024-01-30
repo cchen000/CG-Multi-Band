@@ -74,7 +74,7 @@ ImportLib();
 % ==============================
 % Load settings
 % ==============================
-if nargin==0
+if nargin == 0
     ConfigFile          = 'setup/SimulationSetup_EX4.yaml';
     SimulationSetting   = ReadYaml(ConfigFile);
 end
@@ -622,7 +622,7 @@ for iPath = 1 : ColorlessLightPathSet.nSize
         ColorlessLightPathSet.destinationNo(pNo), ...
         ColorlessLightPathSet.routeNo(pNo), ...
         ColorlessLightPathSet.opticalBandNo(pNo), ...
-        tb, ... ColorlessLightPathSet.transceiverNo(pid), ...
+        tb, ... ColorlessLightPathSet.transceiverNo(pNo), ...
         1:NUM_MODULATIONFORMATS)...
         );
     ColorlessLightPathSet.capacity(pNo) ...
@@ -1063,9 +1063,9 @@ catch ME
     error(ME.message);
 end
 
-if(iscell(func))
+if iscell(func)
     fun = func{1};
-elseif(isa(func,'char')) % for string;
+elseif isa(func,'char') % for string;
     fun = str2func(func);
 else
     fun = func;
@@ -1118,7 +1118,7 @@ LightPathSet.capacity   = LightPathSet.capacity * 1/scalingFactor;
 
 % Output basic information (results, run time, etc.)
 thisAlgorithmName       = Options.algorithmOption.algorithmName;
-if(strcmp(Options.algorithmName, 'SequentialLoadingHeu'))
+if strcmp(Options.algorithmName, 'SequentialLoadingHeu')
     thisAlgorithmName   = sprintf('%s', ...
         Options.algorithmOption.LoadingStrategy);
 end
@@ -1483,7 +1483,7 @@ function [NetworkThroughput, NewNetState,LightPathSet] = ...
 %   Author: chen.cao{at}sjtu.edu.cn; chen_cao_{at}hotmail.com;
 % 
 
-if(isa(ReferenceCapacity, 'double'))
+if isa(ReferenceCapacity, 'double')
     capacityMatrix_kthRoute_atOpticalBand_atTRXBaud_withM = ReferenceCapacity;
 else
     error('Not defined yet');
@@ -1596,7 +1596,7 @@ for iDemand = 1 : SeqDemands.nSize
     % ==============================
     %       - network blocking;
     accumBlockingArray_atdemand(iDemand) = accumBlockingArray_atdemand(max(iDemand-1,1));
-    if((isBlocking_forNodePair(nodePairNo)==true)) % Record accumBlocking status if (src,dst) is already blocked.
+    if isBlocking_forNodePair(nodePairNo) == true % Record accumBlocking status if (src,dst) is already blocked.
         accumBlockingArray_atdemand(iDemand) = accumBlockingArray_atdemand(max(iDemand-1,1)) + 1;
     end
     
@@ -1642,7 +1642,7 @@ for iDemand = 1 : SeqDemands.nSize
             
             bin_edge = logical(beta_atlk_sd(1:NUM_EDGE,iRoute,src,dst));
             bin_inspectionSlots = NetState.isEdgeUseSlot(bin_edge,iChannel);
-            if(any(any(bin_inspectionSlots)))
+            if any(any(bin_inspectionSlots))
                 continue; % Skip searching if all slots are occupied
             end
             
@@ -1764,7 +1764,7 @@ for iDemand = 1 : SeqDemands.nSize
 %             iNodePair,...
 %             NetState.totalCapacityMatrix(Commodity.source(iNodePair), Commodity.destination(iNodePair)));
 %     end
-    if(isTerminate)
+    if isTerminate
         fprintf(fid_log,"We force to terminate the program\n");
         break;
     end
@@ -1976,10 +1976,10 @@ for iEdge = 1 : Networks.nEdges
             %  false(0) otherwise.
             %  Note: We designate the optical band No of the candidate 
             %         optical band.
-            if(strcmp(...
+            if strcmp(...
                     OpticalBandArray(jOpticalBand).name ...
                     , candidateOpticalBandArray(kOpticalBand).name...
-                    ))
+                    )
                 isEdgeUseOpticalBand(iEdge, kOpticalBand) = true;
                 break;
             else
@@ -2142,7 +2142,7 @@ edgeIndexMatrix           	= zeros(NUM_NODE,NUM_NODE);
 indexOfEdge = 0;
 for d = 1:NUM_NODE
     for s = 1:NUM_NODE
-        if(adjacentMatrix(s,d)==true)
+        if adjacentMatrix(s,d) == true
             indexOfEdge         = indexOfEdge +1;
             edgeIndexMatrix(s,d) = indexOfEdge;
         else
@@ -2161,7 +2161,7 @@ for s = 1 : NUM_NODE
             continue;
         end
         [~,pathLength] = kShortestPath(costMatrix,s,d,1);
-        if(isempty(pathLength))
+        if isempty(pathLength)
             distanceShortestPathMatrix(s,d) = NaN;
             continue;
         end
@@ -2348,8 +2348,8 @@ for s = 1 : nNodes
             for ob = 1 : nOpticalBands
                 for tb = 1 : nTRxs
                     for m = 1 : nTRxMods
-                        if(worstSNR_Pathsdk_atOpticalBand_atBaud_withM(s,d,k,ob,tb,m) ...
-                                >= minRequiredSNR_Pathsdk_atOpticalBand_atTRXBaud_withM(s,d,k,ob,tb,m))
+                        if worstSNR_Pathsdk_atOpticalBand_atBaud_withM(s,d,k,ob,tb,m) ...
+                                >= minRequiredSNR_Pathsdk_atOpticalBand_atTRXBaud_withM(s,d,k,ob,tb,m)
                             % Capacity = Baud-Rate * SpectralEfficiency.
                             CapacityMatrix_kthRoute_atOpticalBand_atTRXBaud_withM(s,d,k,ob,tb,m) = ...
                                 CandidateTransponder(tb).GBaud * CandidateModFormat(m).spectralEfficiency;
@@ -2424,7 +2424,8 @@ image(ColoredLinkSlotBlock+1), % avoiding 0 and 1 take the same index.
 colormap(gcf, cmap_matrix);
 axis off;
 xlim([0.5, NUMBER_OF_SLOTS+0.5]);
-export_fig spectrum_usage_graph.png % famous open-source export function export_fig.m is required.
+saveas(gcf,'spectrum_usage_graph.png');
+% export_fig spectrum_usage_graph.png % Or, use open-source export_fig.m
 end
 
 function LightPathSet = addWavelength(...
@@ -2591,7 +2592,7 @@ for iLightPathSet = 1:uLightPathSet.nSize
     
     assert(uLightPathSet.sourceNo(iLightPathSet)>0, 'We have not define it');
     
-    if(uLightPathSet.sourceNo(iLightPathSet)==0)
+    if uLightPathSet.sourceNo(iLightPathSet) == 0
         break;
     end
     
