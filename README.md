@@ -35,7 +35,6 @@ Hope you can enjoy it!
 - Gurobi: ver 9.0 is used for the paper
 - [YAMLIP-R20200930](https://github.com/yalmip/YALMIP/releases) (strongly recommended if using Gurobi 9.0, as less compatible issues between them)
 - MATLAB: R2017b is used
-- [export_fig](https://github.com/altmany/export_fig) (hopefully)
 
 
 
