@@ -39,6 +39,7 @@ Hope you can enjoy it!
 
 ## How to run?
 
+    run('allTest.m');
     %%
     configFile                          = 'setup/SimulationSetup_EX4.yaml';
     SimulationSetting                   = ReadYaml(configFile); 
@@ -133,8 +134,7 @@ with $\hat{L}_{eff,w}= \frac{1- \exp(-\alpha_w L_s)}{\alpha_w}$, $\text{sinhc}(x
 
 
 
---- 
-### Acknowledgment
+##  Acknowledgment
 
 *  Thanks Johan Löfberg for his [YAMLIP](https://yalmip.github.io/download/) project that saves my time when modelling.
 *  Thanks Lloyd Russell for his yml reading file [ReadYaml.m](https://github.com/llerussell/ReadYAML)
