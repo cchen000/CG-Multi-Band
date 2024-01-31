@@ -10,23 +10,22 @@
 * 2024.02: release the code.
 
 ## Introduction
-This repository is written for a paper authored by Cao CHEN, Shilin Xiao, Fen Zhou, and Massimo Tornatore, entitled *Throughput Maximization in Multi-Band Optical Networks with Column Generation*. This paper has been submitted to the conference ICC 2024.
+This repository is for a research paper authored by Cao CHEN, Shilin Xiao, Fen Zhou, and Massimo Tornatore, entitled *Throughput Maximization in Multi-Band Optical Networks with Column Generation*. This paper has been submitted to the conference ICC 2024.
 
-The key contribution is the proposition of the low-complexity Column Generation (CG) decomposition approach to address the routing, wavelength, and band assignment (RWBA) problem subject to the constraints of transmission performance, spectral width, and cost of devices across multiple optical bands. Our results demonstrate the scalability of the CG-based approach when the number of wavelengths increases, with the computation time in the magnitude order of 10 s for cases varying from 75 to 1200 wavelength channels per link in a 14-node network. Such a great benefit may come from the usage of *wavelength configuration* that supports parallel spectrum allocation. Further details can be found in the original paper. 
+The key contribution is the proposition of the low-complexity Column Generation (CG) decomposition approach to address the routing, wavelength, and band assignment (RWBA) problem. This problem is subject to the constraints of transmission performance, spectral width, and cost of devices across multiple optical bands. Our results demonstrate the scalability of the CG-based approach when solving this problem as the number of wavelengths increases, with the computation time in the magnitude order of 10 s for cases varying from 75 to 1200 wavelength channels per link in a 14-node network. Such a great benefit may come from the usage of *wavelength configuration* that supports parallel spectrum allocation. 
 
-Interested readers may refer to the original paper, or the provided example computation in a 4-node network in case you want to derive other related research with CG approach.
+Interested readers may refer to the original paper, or the 4-node network example that illustrates how CG works. 
 
 Hope you can enjoy it!
 
 
 <pre>
-@conferences{CXZT24,
+@article{CXZT23,
       title={Throughput Maximization in Multi-Band Optical Networks with Column Generation}, 
       author={Cao Chen and Shilin Xiao and Fen Zhou and Massimo Tornatore},
-      year={2024},
-      eprint={2103.03095},
-      archivePrefix={arXiv},
-      primaryClass={cs.NI}
+      year={2023},
+      journal={arXiv:2311.07335},
+      month={Nov.},
 }
 </pre>
 
@@ -76,19 +75,19 @@ Hope you can enjoy it!
         'test.txt', 'w+');
     type test.txt
 
-Some example results:
+## Some example results:
 
-![DT9_Pricing](media/DT9_Pricing.gif)
 ![DT9_RMP_LP](media/DT9_RMP_LP.gif)
+![DT9_Pricing](media/DT9_Pricing.gif)
 ![DT9_summary](media/DT9_summary.PNG)
 
 
 
 ![Comparison](media/CG_FFkSP_kSPFF.PNG)
 
-### Physical-Layer-Impariment Model
+## Physical-Layer-Impariment Model
 
-We strongly encourage the reader to develop the physical layer impairment by himself/herself and compute the margins of different optical bands. But in case you have no prior knowledge,  you can refer to the following physical layer impairment model that was mentioned by this paper.
+We strongly encourage the reader to develop the physical layer impairment by himself/herself and compute the margins of different optical bands. But in case you have no prior knowledge,  you can refer to the following physical layer impairment model that was mentioned in this paper.
 
 
 ```math
