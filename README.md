@@ -80,18 +80,16 @@ Hope you can enjoy it!
 ## Some example results:
 
 
-![Comparison](media/CG_FFkSP_kSPFF.PNG)
-=======
 #### Process of CG (iterative RMPs and Pricings) 
-<img src="media/DT9_RMP_LP.gif" width=45%     title="DT9 RMP"/>
-<img src="media/DT9_Pricing.gif" width=45%    title="DT9 Pricing"/>
+<img src="media/DT9_RMP_LP.gif" width=42%     title="DT9 RMP"/>
+<img src="media/DT9_Pricing.gif" width=42%    title="DT9 Pricing"/>
 <img src="media/DT9_summary.PNG" width=90%    title="DT9 summary"/>
  
 #### Process of heuristics (sequential loading)
-<img src="media/DT9_FF-kSP.gif" width=45%     title="DT9 FF-kSP"/>
-<img src="media/DT9_kSP-FF.gif" width=45%     title="DT9 kSP-FF"/>
+<img src="media/DT9_FF-kSP.gif" width=42%     title="DT9 FF-kSP"/>
+<img src="media/DT9_kSP-FF.gif" width=42%     title="DT9 kSP-FF"/>
 <img src="media/CG_FFkSP_kSPFF.PNG" width=90% title="Comparison"/>
->>>>>>> Document
+
 
 ## Physical-Layer-Impariment Model
 
