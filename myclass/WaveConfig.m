@@ -5,6 +5,7 @@ classdef WaveConfig < matlab.mixin.Copyable
         no                    = []; % format : 1 x |nConfigs|
         isActive              = []; % format : 1 x |nConfigs|
         nLightPath            = []; % format : 1 x |nConfigs|
+        nRepetition           = []; % format : 1 x |nConfigs|
         nFrequencySlot        = []; % format : 1 x |nConfigs|
         opticalBandNo         = []; % format : 1 x |nConfigs|
         lightPathNoSet        = []; % format : |MAX_LIGHTPATHS| x |nConfigs|
@@ -31,11 +32,12 @@ classdef WaveConfig < matlab.mixin.Copyable
                     val = obj.(thisName);
                     [x1,y1] = find(val);
                     resultStr = [];
-                    for iElement = 1:40
+                    nElement  = min(40, length(x1));
+                    for iElement = 1:nElement
                         cacheStr = printArray(val(x1(iElement), y1(iElement)));
                         resultStr = sprintf('%s{%s}', resultStr, cacheStr);
                     end
-                    str = sprintf('%s%s[%s](40 elements): [%s]\n',str, thisName,printArray(size(val), '*'), resultStr);
+                    str = sprintf('%s%s[%s](%d elements): [%s]\n',str, thisName,printArray(size(val), '*'), nElement, resultStr);
                     % do not deal with full matrix;
                 elseif(isa(obj.(thisName),'logical')&&size(obj.(thisName),1)==1)
                     val = obj.(thisName);
@@ -44,20 +46,22 @@ classdef WaveConfig < matlab.mixin.Copyable
                     val = obj.(thisName);
                     [x1,y1] = find(val);
                     resultStr = [];
-                    for iElement = 1:40
+                    nElement  = min(40, length(x1));
+                    for iElement = 1:nElement
                         cacheStr = printArray([x1(iElement), y1(iElement)]);
                         resultStr = sprintf('%s{%s}', resultStr, cacheStr);
                     end
-                    str = sprintf('%s%s[%s](40 elements): [%s]\n',str, thisName,printArray(size(val), '*'), resultStr);
+                    str = sprintf('%s%s[%s](%d elements): [%s]\n',str, thisName,printArray(size(val), '*'), nElement, resultStr);
                     % do not deal with full matrix;
                 elseif(isa(obj.(thisName),'cell'))
                     val = obj.(thisName);
                     resultStr = [];
-                    for iElement = 1:20
+                    nElement  = min(20, length(x1));
+                    for iElement = 1:nElement
                         cacheStr = sprintf('%s',val{iElement});
                         resultStr = sprintf('%s{%s}', resultStr, cacheStr);
                     end
-                    str = sprintf('%s%s[%s](20 elements): %s\n',str, thisName,printArray(size(val), '*'), resultStr);
+                    str = sprintf('%s%s[%s](%d elements): %s\n',str, thisName,printArray(size(val), '*'),nElement, resultStr);
                 else
                     error('not defined yet');
                 end
@@ -184,13 +188,22 @@ classdef WaveConfig < matlab.mixin.Copyable
             obj.nSize = nConfigs;
             obj.isActive = false(1,nConfigs);
             obj.nLightPath = zeros(1,nConfigs,'uint16');
+            obj.nRepetition = zeros(1,nConfigs,'uint64');
             obj.nFrequencySlot = zeros(1,nConfigs);
             obj.lightPathNoSet = zeros(MAX_POSSIBILITY_PERCONFIGURE, nConfigs,'uint64');
             obj.capacity_perCommodity = zeros(NUM_COMMODITY,nConfigs, 'double');
             obj.opticalBandNo = zeros(1, nConfigs, 'uint8');
         end
         
-        function [vec_ColoredConfigID_ofCh] = packConfiguration(CandidateWaveConfigSet, Repeated_Configurations, PackOption)
+        function [obj] = updateConfigurationTimes(obj ...
+                , rep_Config)
+            obj.nRepetition = rep_Config;
+        end
+        
+        function [vec_ColoredConfigID_ofCh] = packConfiguration(...
+                  CandidateWaveConfigSet ...
+                , PackOption ...
+                )
             % Description:
             %       This function assigns the exact wavelength for each configuration.
             %
@@ -204,6 +217,7 @@ classdef WaveConfig < matlab.mixin.Copyable
             isGroup = PackOption.('isGroup');
             direction = PackOption.('direction');
             basis  = PackOption.('basis');            
+            Repeated_Configurations = CandidateWaveConfigSet.nRepetition;
             nTotalTimes = sum(Repeated_Configurations);
             nConfigs = CandidateWaveConfigSet.nSize;
 
@@ -265,54 +279,76 @@ classdef WaveConfig < matlab.mixin.Copyable
             end
         end
         
-        function printConfiguration(...
-                obj ...
-                , fileName...
-                , Repeated_Configurations ...
+        function printConfiguration(    ...
+                obj                     ...
+                , fileName              ...
+                , itemConfiguration     ...
+                , itemLightPath         ...
                 , ColorlessLightPathSet)
             % Description:
             %       prints wavelength configuration to a file.
             %
             % Date: 30 Nov. 2023.
             % Author: cao.chen
+            % - Print information from the given items, 26th Mar., 2024.
             % ==============================
             % Obtain parameters
             % ==============================
-            NUM_COMMODITY    = size(obj.capacity_perCommodity,1);
+            NUM_COMMODITY                = size(obj.capacity_perCommodity,1);
             MAXIMUM_LIGHTPATHS_CONFIGURE = size(ColorlessLightPathSet.isPathUseEdges,2);
+            rep                          = obj.nRepetition; % nRepetition_ofConfig
             
             % Start print ...
             fid = fopen(fileName,'a+');
             fprintf(fid,'==============================\n');
             
             count = 0;
-            for idx_config = 1:numel(Repeated_Configurations)
-                if(Repeated_Configurations(idx_config)==0)
-                    continue;
-                end
-                count = count+1;
-                fprintf(fid,'%d-th configuration (ID=%d, band=%d, repetion=%d, transceivers=%d, capacity=%g)\n', ...
-                    count, ...
-                    idx_config, ...
-                    obj.opticalBandNo(idx_config), ...
-                    Repeated_Configurations(idx_config),...
-                    nnz(obj.lightPathNoSet(1:MAXIMUM_LIGHTPATHS_CONFIGURE, idx_config)), ...
-                    sum(obj.capacity_perCommodity(1:NUM_COMMODITY, idx_config))...
-                    );
-                
-                pNoSet = nonzeros(obj.lightPathNoSet(1:MAXIMUM_LIGHTPATHS_CONFIGURE,idx_config));
-                for idx_p = 1:length(pNoSet)
-                    pid = pNoSet(idx_p);
-                    fprintf(fid,'::: pid=%2d(%d->%d, k=%d, band=%d), cap=%4.4g, \tlength=%d, \t path=%s, \n', ...
-                        pid,...
-                        ColorlessLightPathSet.sourceNo(pid), ...
-                        ColorlessLightPathSet.destinationNo(pid), ...
-                        ColorlessLightPathSet.routeNo(pid), ...
-                        ColorlessLightPathSet.opticalBandNo(pid), ...
-                        ColorlessLightPathSet.capacity(pid),...
-                        ColorlessLightPathSet.cost(pid), ...
-                        ColorlessLightPathSet.strPath{pid});
-                end
+            for iConfig = 1 : numel(rep)
+                if rep(iConfig) == 0
+                    continue; 
+                end 
+                count   = count + 1;
+                % ==============================
+                % print configurations ...
+                % ==============================
+                fprintf(fid, '%d-th configuration (', count);
+                for jItemConfig = 1 : numel(itemConfiguration)
+                    thisItem = itemConfiguration{jItemConfig};
+                    val      = obj.(thisItem);
+                    
+                    fprintf(fid, '%s=[%s],' ...
+                        , thisItem ...
+                        , printArray(val(:,iConfig))...
+                        );
+                end 
+                fprintf(fid, ')\n');
+                 
+                % ==============================
+                % and print lightpaths ...
+                % ==============================
+                pNoSet           = nonzeros(...
+                    obj.lightPathNoSet(1:MAXIMUM_LIGHTPATHS_CONFIGURE,iConfig)...
+                    ); 
+                 
+                thisLightPathSet = ...
+                    LightPath(...
+                    MAXIMUM_LIGHTPATHS_CONFIGURE ...
+                    , size(ColorlessLightPathSet.isPathUseEdges,2) ...
+                    ); 
+                for jPath = 1 : length(pNoSet)
+                    pNo              = pNoSet(jPath);
+                    thisLightPathSet = ...
+                        addLightPath(...
+                          thisLightPathSet ...
+                        , ColorlessLightPathSet ...
+                        , pNo);
+                end 
+                 
+                printLightPathSet(...
+                    thisLightPathSet ...
+                    , itemLightPath ...
+                    , fileName, 'a+'...
+                    )
             end
             
             fclose(fid);

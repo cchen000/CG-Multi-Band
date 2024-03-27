@@ -192,10 +192,12 @@ classdef LightPath < matlab.mixin.Copyable
             fid = fopen(fileName,FormatSpec);
             
             % short outline
+            if NUM_SET >= 2
             fprintf(fid, '%d LightPathSets, total LPs =%d\n'...
                 , NUM_SET ...
                 , sum(getNumeric(self, 'nSize')) ...
                 );
+            end
             
             for iSet = 1:NUM_SET
                 thisSet = self(iSet);
@@ -220,7 +222,7 @@ classdef LightPath < matlab.mixin.Copyable
                         else
                             error('undefined');
                         end
-                        cache = sprintf('%s, %s=%s',cache, thisName, thisVal);
+                        cache = sprintf('%s %s=%s,',cache, thisName, thisVal);
                     end
                     fprintf(fid , '%s\n', cache);
                 end
@@ -260,16 +262,19 @@ classdef LightPath < matlab.mixin.Copyable
                 
                 % summary information;
                 nLPs	= thisSet.nSize;
-                fprintf(fid, '%d-th commodity (%d-->%d, no. LPs=%d, cap=%g)\n', ...
+                fprintf(fid,...
+                    '%d-th commodity (%d-->%d, flow=%.3g, no. LPs=%d, cap=%g)\n', ...
                     cNo, ...
                     Commodity.sourceNo(cNo), ...
                     Commodity.destinationNo(cNo), ...
+                    Commodity.flowSize(cNo), ...
                     thisSet.nSize, ...
-                    sum(thisSet.capacity(1:nLPs)));
+                    sum(thisSet.capacity(1:nLPs))...
+                    );
                                 
                 % detailed information;
                 for jPath = 1 : thisSet.nSize
-                    fprintf(fid, '::: flow=%.3g', Commodity.flowSize(cNo));
+                    fprintf(fid, ':::');
                     cache           = '';
                     for kItem = 1 : length(itemName)
                         assert(...
@@ -287,7 +292,7 @@ classdef LightPath < matlab.mixin.Copyable
                         else
                             error('undefined');
                         end
-                        cache = sprintf('%s, %s=%s',cache, thisName, thisVal);
+                        cache = sprintf('%s %s=%s,',cache, thisName, thisVal);
                     end
                     fprintf(fid , '%s\n', cache);
                 end
