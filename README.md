@@ -1,16 +1,17 @@
 # Throughput Maximization in Multi-Band Optical Networks with Column Generation
 
 
-![](https://img.shields.io/badge/Status-Accepted-red) 
-![https://arxiv.org/abs/2311.07335](http://img.shields.io/badge/DOI-10.48550/arXiv:2311.07335-LightGreen.svg) 
+[![Accepted](https://img.shields.io/badge/Status-Accepted-blue)](https://github.com/cchen000/CG-Multi-Band)
+[![DOI](http://img.shields.io/badge/DOI-10.48550/arXiv:2311.07335-LightGreen.svg)](https://arxiv.org/abs/2311.07335)
 
 
 ## Project log
 
+* 2024.03: new figures to `media/`, several minor modifications.
 * 2024.02: release the code.
 
 ## Introduction
-This repository is for a research paper authored by Cao CHEN, Shilin Xiao, Fen Zhou, and Massimo Tornatore, entitled *Throughput Maximization in Multi-Band Optical Networks with Column Generation*. This paper has been submitted to the conference ICC 2024.
+This repository is for a research paper authored by Cao Chen, Shilin Xiao, Fen Zhou, and Massimo Tornatore, entitled *Throughput Maximization in Multi-Band Optical Networks with Column Generation*. This paper has been submitted to the conference ICC 2024.
 
 The key contribution is the proposition of the low-complexity Column Generation (CG) decomposition approach to address the routing, wavelength, and band assignment (RWBA) problem. This problem is subject to the constraints of transmission performance, spectral width, and cost of devices across multiple optical bands. Our results demonstrate the scalability of the CG-based approach when solving this problem as the number of wavelengths increases, with the computation time in the magnitude order of 10 s for cases varying from 75 to 1200 wavelength channels per link in a 14-node network. Such a great benefit may come from the usage of *wavelength configuration* that supports parallel spectrum allocation. 
 
@@ -78,13 +79,15 @@ Hope you can enjoy it!
 
 ## Some example results:
 
-![DT9_RMP_LP](media/DT9_RMP_LP.gif)
-![DT9_Pricing](media/DT9_Pricing.gif)
-![DT9_summary](media/DT9_summary.PNG)
-
-
-
-![Comparison](media/CG_FFkSP_kSPFF.PNG)
+#### Process of CG (iterative RMPs and Pricings) 
+<img src="media/DT9_RMP_LP.gif" width=45%     title="DT9 RMP"/>
+<img src="media/DT9_Pricing.gif" width=45%    title="DT9 Pricing"/>
+<img src="media/DT9_summary.PNG" width=90%    title="DT9 summary"/>
+ 
+#### Process of heuristics (sequential loading)
+<img src="media/DT9_FF-kSP.gif" width=45%     title="DT9 FF-kSP"/>
+<img src="media/DT9_kSP-FF.gif" width=45%     title="DT9 kSP-FF"/>
+<img src="media/CG_FFkSP_kSPFF.PNG" width=90% title="Comparison"/>
 
 ## Physical-Layer-Impariment Model
 
@@ -114,7 +117,7 @@ with $\hat{L}_{eff,w}= \frac{1- \exp(-\alpha_w L_s)}{\alpha_w}$, $\text{sinhc}(x
 
 | Symbol    | Description                                | Value    | Unit     |
 |-----------|--------------------------------------------|----------|----------|
-| $\beta_2$ | group velocity   dispersion                | -21.7    | ps^2/m   |
+| $\beta_2$ | Group velocity   dispersion                | -21.7    | ps^2/m   |
 | $R_s$     | Symbol rate                                | 32       | GBaud    |
 | $B_{ch}$  | Channel spacing                            | 32       | GHz      |
 | $C_R$     | Raman gain slope                           | 0.029    | W/km/THz |
@@ -126,7 +129,7 @@ with $\hat{L}_{eff,w}= \frac{1- \exp(-\alpha_w L_s)}{\alpha_w}$, $\text{sinhc}(x
 | $\text{NF}$      | Noise figure                               | 5        | dB       |
 | $B_t$     | Total bandwidth                            | 15       | THz      |
 | $B_b$      | Optical band   bandwidth      $b\in\{U,L,C\}$ | 5        | THz      |
-| $P_0$     | Power per channel                          | 0.45     | mW/GHz   |
+| $P_0$     | Power per channel                          | 0.45     | mW/ch    |
 | $P_t$     | Total power                                | 0.21     | W        |
 
 
