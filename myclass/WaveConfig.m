@@ -5,6 +5,7 @@ classdef WaveConfig < matlab.mixin.Copyable
         no                    = []; % format : 1 x |nConfigs|
         isActive              = []; % format : 1 x |nConfigs|
         nLightPath            = []; % format : 1 x |nConfigs|
+        nRepetition           = []; % format : 1 x |nConfigs|
         nFrequencySlot        = []; % format : 1 x |nConfigs|
         opticalBandNo         = []; % format : 1 x |nConfigs|
         lightPathNoSet        = []; % format : |MAX_LIGHTPATHS| x |nConfigs|
@@ -184,13 +185,22 @@ classdef WaveConfig < matlab.mixin.Copyable
             obj.nSize = nConfigs;
             obj.isActive = false(1,nConfigs);
             obj.nLightPath = zeros(1,nConfigs,'uint16');
+            obj.nRepetition = zeros(1,nConfigs,'uint64');
             obj.nFrequencySlot = zeros(1,nConfigs);
             obj.lightPathNoSet = zeros(MAX_POSSIBILITY_PERCONFIGURE, nConfigs,'uint64');
             obj.capacity_perCommodity = zeros(NUM_COMMODITY,nConfigs, 'double');
             obj.opticalBandNo = zeros(1, nConfigs, 'uint8');
         end
         
-        function [vec_ColoredConfigID_ofCh] = packConfiguration(CandidateWaveConfigSet, Repeated_Configurations, PackOption)
+        function [obj] = updateConfigurationTimes(obj ...
+                , rep_Config)
+            obj.nRepetition = rep_Config;
+        end
+        
+        function [vec_ColoredConfigID_ofCh] = packConfiguration(...
+                  CandidateWaveConfigSet ...
+                , PackOption ...
+                )
             % Description:
             %       This function assigns the exact wavelength for each configuration.
             %
@@ -204,6 +214,7 @@ classdef WaveConfig < matlab.mixin.Copyable
             isGroup = PackOption.('isGroup');
             direction = PackOption.('direction');
             basis  = PackOption.('basis');            
+            Repeated_Configurations = CandidateWaveConfigSet.nRepetition;
             nTotalTimes = sum(Repeated_Configurations);
             nConfigs = CandidateWaveConfigSet.nSize;
 

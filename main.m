@@ -878,6 +878,9 @@ rep_Config         = round(rep_Config); % float if large solution gap
 
 timeRMPINT          = toc(eventRMPINT);
 
+CandidateWaveConfigSet = updateConfigurationTimes(...
+      CandidateWaveConfigSet ...
+    , rep_Config(:)');
 %% CG-step 5: configure wavelength
 % *Sort configurations*
 % 
@@ -891,8 +894,9 @@ PackOption = struct( ...
     ...'random'
     );
 
-[vec_ColoredConfigID_ofCh] = packConfiguration(CandidateWaveConfigSet, ...
-    rep_Config, PackOption);
+[vec_ColoredConfigID_ofCh] = packConfiguration(...
+      CandidateWaveConfigSet ...
+    , PackOption);
             
 % ============================== 
 % Processing lightpath;
