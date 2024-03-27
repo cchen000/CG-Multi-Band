@@ -15,7 +15,7 @@ This repository is for a research paper authored by Cao Chen, Shilin Xiao, Fen Z
 
 The key contribution is the proposition of the low-complexity Column Generation (CG) decomposition approach to address the routing, wavelength, and band assignment (RWBA) problem. This problem is subject to the constraints of transmission performance, spectral width, and cost of devices across multiple optical bands. Our results demonstrate the scalability of the CG-based approach when solving this problem as the number of wavelengths increases, with the computation time in the magnitude order of 10 s for cases varying from 75 to 1200 wavelength channels per link in a 14-node network. Such a great benefit may come from the usage of *wavelength configuration* that supports parallel spectrum allocation. 
 
-Interested readers may refer to the original paper, or the 4-node network example that illustrates how CG works. 
+Interested readers may refer to the original [paper](https://arxiv.org/abs/2311.07335), or the 4-node network [example](media/supplementary_4nodeExampleComputation.pdf) that illustrates how CG works. 
 
 Hope you can enjoy it!
 
