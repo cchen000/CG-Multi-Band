@@ -640,7 +640,7 @@ switch MainOptions.algorithmOption.strategyLPConfigInitial
         LP_Config_Block = zeros(MAX_LIGHTPATH_CONFIGURE, NUM_COMMODITY);
         for iConfig = 1 : NUM_COMMODITY
             for jPath = 1 : ColorlessLightPathSet.nSize
-                if iConfig == ColorlessLightPathSet.connectionNo(jPath)
+                if iConfig == ColorlessLightPathSet.nodePairNo(jPath)
                     LP_Config_Block(1, iConfig) = jPath;
                     break;
                 end
