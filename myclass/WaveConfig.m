@@ -32,11 +32,12 @@ classdef WaveConfig < matlab.mixin.Copyable
                     val = obj.(thisName);
                     [x1,y1] = find(val);
                     resultStr = [];
-                    for iElement = 1:40
+                    nElement  = min(40, length(x1));
+                    for iElement = 1:nElement
                         cacheStr = printArray(val(x1(iElement), y1(iElement)));
                         resultStr = sprintf('%s{%s}', resultStr, cacheStr);
                     end
-                    str = sprintf('%s%s[%s](40 elements): [%s]\n',str, thisName,printArray(size(val), '*'), resultStr);
+                    str = sprintf('%s%s[%s](%d elements): [%s]\n',str, thisName,printArray(size(val), '*'), nElement, resultStr);
                     % do not deal with full matrix;
                 elseif(isa(obj.(thisName),'logical')&&size(obj.(thisName),1)==1)
                     val = obj.(thisName);
@@ -45,20 +46,22 @@ classdef WaveConfig < matlab.mixin.Copyable
                     val = obj.(thisName);
                     [x1,y1] = find(val);
                     resultStr = [];
-                    for iElement = 1:40
+                    nElement  = min(40, length(x1));
+                    for iElement = 1:nElement
                         cacheStr = printArray([x1(iElement), y1(iElement)]);
                         resultStr = sprintf('%s{%s}', resultStr, cacheStr);
                     end
-                    str = sprintf('%s%s[%s](40 elements): [%s]\n',str, thisName,printArray(size(val), '*'), resultStr);
+                    str = sprintf('%s%s[%s](%d elements): [%s]\n',str, thisName,printArray(size(val), '*'), nElement, resultStr);
                     % do not deal with full matrix;
                 elseif(isa(obj.(thisName),'cell'))
                     val = obj.(thisName);
                     resultStr = [];
-                    for iElement = 1:20
+                    nElement  = min(20, length(x1));
+                    for iElement = 1:nElement
                         cacheStr = sprintf('%s',val{iElement});
                         resultStr = sprintf('%s{%s}', resultStr, cacheStr);
                     end
-                    str = sprintf('%s%s[%s](20 elements): %s\n',str, thisName,printArray(size(val), '*'), resultStr);
+                    str = sprintf('%s%s[%s](%d elements): %s\n',str, thisName,printArray(size(val), '*'),nElement, resultStr);
                 else
                     error('not defined yet');
                 end
@@ -276,10 +279,11 @@ classdef WaveConfig < matlab.mixin.Copyable
             end
         end
         
-        function printConfiguration(...
-                obj ...
-                , fileName...
-                , Repeated_Configurations ...
+        function printConfiguration(    ...
+                obj                     ...
+                , fileName              ...
+                , itemConfiguration     ...
+                , itemLightPath         ...
                 , ColorlessLightPathSet)
             % Description:
             %       prints wavelength configuration to a file.
