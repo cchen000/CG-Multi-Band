@@ -79,7 +79,10 @@ Hope you can enjoy it!
 ## Some example results:
 
 ![DT9_RMP_LP](media/DT9_RMP_LP.gif)
+<<<<<<< HEAD
+=======
 ![DT9_Pricing](media/DT9_Pricing.gif)
+>>>>>>> 81c3db177f51e81049e245beaced4b066fee884e
 ![DT9_summary](media/DT9_summary.PNG)
 
 

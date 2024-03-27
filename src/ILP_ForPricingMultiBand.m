@@ -14,7 +14,7 @@ bin_activating_ofp  = logical(TestBand==ColorlessLightPathSet.opticalBandNo);
 bin_vec_uv_ofp      = ColorlessLightPathSet.isPathUseEdges';
 vec_sefficiency_ofp = ColorlessLightPathSet.capacity;
 strPath_ofp         = ColorlessLightPathSet.strPath;
-vec_commodityID_ofp = ColorlessLightPathSet.connectionNo(:);
+vec_commodityID_ofp = ColorlessLightPathSet.nodePairNo(:);
 
 
 sourceNo_ofconnection       = Commodity.sourceNo;
@@ -73,7 +73,7 @@ end
 
 var_TotalLightpaths   = sum(var_bin_ofp(bin_activating_ofp));
 
-objective_my = (+var_Capacity_oncommodity)'*[dual_commodity']...
+objective_my = +var_Capacity_oncommodity'*dual_commodity'...
     -var_TotalLightpaths*dual_onLimitedTransceiver-dual_onLimitedWavelength(TestBand);
 
 options = sdpsettings('solver', 'gurobi', 'verbose', 0,...
@@ -138,7 +138,7 @@ NoLPsConfigNew = TotalLightpaths;
 %   Print results.
 % ==============================
 fprintf('Obj = %d\n',obj_PricingProblem);
-fprintf('Capacity_oncommodity = [%s]\n', myPrintArray(Capacity_oncommodity)); 
+fprintf('Capacity_oncommodity = [%s]\n', printArray(Capacity_oncommodity)); 
 fprintf('TotalLightpaths = [%d]\n',TotalLightpaths); 
 
 for idx_commodityi = 1:NUM_COMMODITY
