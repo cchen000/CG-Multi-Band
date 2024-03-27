@@ -192,10 +192,12 @@ classdef LightPath < matlab.mixin.Copyable
             fid = fopen(fileName,FormatSpec);
             
             % short outline
+            if NUM_SET >= 2
             fprintf(fid, '%d LightPathSets, total LPs =%d\n'...
                 , NUM_SET ...
                 , sum(getNumeric(self, 'nSize')) ...
                 );
+            end
             
             for iSet = 1:NUM_SET
                 thisSet = self(iSet);
