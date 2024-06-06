@@ -7,13 +7,14 @@
 
 ## Project log
 
+* 2024.06: update figures and fix typos.
 * 2024.03: new figures to `media/`, several minor modifications.
 * 2024.02: release the code.
 
 ## Introduction
 This repository is for a research paper authored by Cao Chen, Shilin Xiao, Fen Zhou, and Massimo Tornatore, entitled *Throughput Maximization in Multi-Band Optical Networks with Column Generation*. This paper has been submitted to the conference ICC 2024.
 
-The key contribution is the proposition of the low-complexity Column Generation (CG) decomposition approach to address the routing, wavelength, and band assignment (RWBA) problem. This problem is subject to the constraints of transmission performance, spectral width, and cost of devices across multiple optical bands. Our results demonstrate the scalability of the CG-based approach when solving this problem as the number of wavelengths increases, with the computation time in the magnitude order of 10 s for cases varying from 75 to 1200 wavelength channels per link in a 14-node network. Such a great benefit may come from the usage of *wavelength configuration* that supports parallel spectrum allocation. 
+The key contribution is to address the routing, wavelength, and band assignment (RWBA) problem via a low-complexity Column Generation (CG) decomposition approach. This problem is subject to the constraints of transmission performance, spectral width, and cost of devices across multiple optical bands. Our results demonstrate the scalability of the CG-based approach. We observed a computation time in the magnitude order of 10 s when solving cases with varying numbers of wavelengths from 75 to 1200 in a 14-node network. Such a great benefit comes from the reformulation of the master problem, where we use the concept of wavelength configuration to describe the routings. Based on this new formulation, a large number of wavelength-related constraints (e.g., wavelength continuity and wavelength non-overlapping constraints) are replaced by one or several simple wavelength limitation constraints (i.e., convexity constraint or coupling constraint) when formulating the master problem. The pricing problem used to design the wavelength configuration was expected to be time-consuming, but we dealt with it by using a simple heuristic algorithm, significantly reducing the solution time.
 
 Interested readers may refer to the original [paper](https://arxiv.org/abs/2311.07335), or the 4-node network [example](media/supplementary_4nodeExampleComputation.pdf) that illustrates how CG works. 
 
@@ -81,8 +82,7 @@ Hope you can enjoy it!
 
 
 #### Process of CG (iterative RMPs and Pricings) 
-<img src="media/DT9_RMP_LP.gif"  title="DT9 RMP"/>
-<img src="media/DT9_Pricing.gif" title="DT9 Pricing"/>
+<img src="media/DT9_CG.gif"  title="DT9 RMP"/>
  
 #### Process of heuristics (sequential loading)
 <img src="media/DT9_FF-kSP.gif"  title="DT9 FF-kSP"/>
@@ -92,9 +92,9 @@ Hope you can enjoy it!
 <img src="media/CG_FFkSP_kSPFF.PNG" width=90% title="Comparison"/>
 
 
-## Physical-Layer-Impariment Model
+## Physical-Layer-Impairment Model
 
-We strongly encourage the reader to develop the physical layer impairment by himself/herself and compute the margins of different optical bands. But in case you have no prior knowledge,  you can refer to the following physical layer impairment model that was mentioned in this paper.
+We strongly encourage the reader to compute the SNRs of different optical bands according to your knowledge of physical layer impairment. But in case you have no prior knowledge,  you can refer to the following physical layer impairment model that was mentioned in this paper.
 
 
 ```math
