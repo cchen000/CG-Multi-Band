@@ -92,7 +92,7 @@ Hope you can enjoy it!
 <img src="media/CG_FFkSP_kSPFF.PNG" width=90% title="Comparison"/>
 
 
-## Physical-Layer-Impariment Model
+## Physical-Layer-Impairment Model
 
 We strongly encourage the reader to develop the physical layer impairment by himself/herself and compute the margins of different optical bands. But in case you have no prior knowledge,  you can refer to the following physical layer impairment model that was mentioned in this paper.
 
