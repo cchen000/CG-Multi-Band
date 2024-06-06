@@ -81,8 +81,7 @@ Hope you can enjoy it!
 
 
 #### Process of CG (iterative RMPs and Pricings) 
-<img src="media/DT9_RMP_LP.gif"  title="DT9 RMP"/>
-<img src="media/DT9_Pricing.gif" title="DT9 Pricing"/>
+<img src="media/DT9_CG.gif"  title="DT9 RMP"/>
  
 #### Process of heuristics (sequential loading)
 <img src="media/DT9_FF-kSP.gif"  title="DT9 FF-kSP"/>
