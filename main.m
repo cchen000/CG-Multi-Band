@@ -745,16 +745,23 @@ algorithmEventCGLoop = tic;
 % ==============================
 % Create plot handles
 % ==============================
+nConfigs_ofiter   = NaN(MAXIMUM_ITERATION, 1);
 objRMP_ofiter     = NaN(MAXIMUM_ITERATION, 1);
 objPricing_ofiter = NaN(MAXIMUM_ITERATION, 1);
-figure(1); 
-hRMP = plot(objRMP_ofiter,'YDataSource','objRMP_ofiter');
-xlabel('# iterations');
+figCG = figure(1); 
+subplot(2,1,1);
+hRMP = plot(objRMP_ofiter ...
+    , 'YDataSource','objRMP_ofiter' ...
+    , 'XDataSource','nConfigs_ofiter');
+xlabel('# Configs.');
 ylabel('Max. Throughput [Gbps]');
 title('Variation of Max. Throughput [Gbit/s]');
 
-figure(2); hPricing = plot(objPricing_ofiter,'YDataSource','objPricing_ofiter');
-xlabel('# iterations');
+subplot(2,1,2);
+hPricing = plot(objPricing_ofiter ...
+    , 'YDataSource','objPricing_ofiter' ...
+    , 'XDataSource','nConfigs_ofiter');
+xlabel('# Configs.');
 ylabel('Reduced cost (in Pricing Problem)');
 title('Variation of Reduced Cost');
 
@@ -774,6 +781,7 @@ for iIteration = 1 : MAXIMUM_ITERATION
                                                     ConfigNew,...
                                                     ColorlessLightPathSet...
                                                     );
+    nConfigs_ofiter(iIteration) = CandidateWaveConfigSet.nSize;
     %=================================
     %          Restricted Master Problem (printing reduced cost).
     %=================================
@@ -848,8 +856,7 @@ for iIteration = 1 : MAXIMUM_ITERATION
     %     Plot convergence performance
     objRMP_ofiter(iIteration)    = obj_RestrictedMasterProblem_LP;
     objPricing_ofiter(iIteration)= OBJ_REDUCED_COST(idxBestPricing);
-    refreshdata(hRMP,'caller'); drawnow;
-    refreshdata(hPricing,'caller'); drawnow;
+    refreshdata(figCG,'caller'); drawnow;
     pause(.05);
     % ==============================
 end
