@@ -7,6 +7,7 @@
 
 ## Project log
 
+* 2026.03: add `Matlab/Python` code for 4-node network.
 * 2024.06: update figures and fix typos.
 * 2024.03: new figures to `media/`, several minor modifications.
 * 2024.02: release the code.
