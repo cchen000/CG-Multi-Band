@@ -1,47 +1,59 @@
-%% Demo implementation of CG in 4-node network
-% 
+%% Demo: Column Generation (CG) for RWA in a 4-node network
+%
+%  This script solves the Routing and Wavelength Assignment (RWA) problem
+%  using Column Generation (CG), an iterative decomposition method:
+%    1. Restricted Master Problem (RMP): given a set of wavelength
+%       configurations, decide how many times each configuration is used.
+%    2. Pricing Sub-problem: find a new configuration with positive
+%       reduced cost; if none exists, the current solution is optimal.
+%  After CG converges with LP-relaxed RMP, re-solve RMP with integer
+%  variables to obtain the final integer solution.
+%
 % Author: Cao Chen
 % Date: 2026, Mar., 5th.
-% 
-%% Loading parameters
-maxWavelengths  = 8; % Maximum available wavelengths, W in the paper;
-maxTransceivers = 1000000; % Maximum availble transceivers, A  in the paper;
+%
+%% 1. Network parameters
+% --- Resource limits ---
+maxWavelengths  = 8;       % Total wavelength channels per fiber link (W)
+maxTransceivers = 1000000; % Transceiver budget (set very large = unconstrained)
 
+% --- Traffic demand matrix (4 nodes) ---
+%  Entry (s,d) = proportion of total traffic from node s to node d.
+%  Three non-zero demands: (1->4), (2->3), (2->4)
 normalized_demand_matrix = [
   0 0 0 1/3
   0 0 1/3 1/3
   0 0 0 0
   0 0 0 0  
-]; % Network traffic demand distribution;
+];
 
 % ==============================
-% 3 candidate paths for 3 demands;
+% 2. Candidate paths (3 paths per demand, 9 paths total)
 % ==============================
+%  Topology (4 nodes, 7 directed links):
+%       1 ---8--- 2
+%       |\        |
+%       4  25     2
+%       |    \    |
+%       3 ---9--- 4
+%  (numbers on edges = link distances)
 
-% Optical Network Data
-% OpticalNetwork = zeros(4,4);
-% OpticalNetwork(1,2) = 8;
-% OpticalNetwork(2,1) = 8;
-% OpticalNetwork(1,3) = 4;
-% OpticalNetwork(1,4) = 25;
-% OpticalNetwork(2,4) = 2;
-% OpticalNetwork(3,4) = 9;
-% OpticalNetwork(4,3) = 9;
+% --- Demand 1->4: three candidate paths ---
+Path124     = [1,2,4];    % 1 -> 2 -> 4
+Path134     = [1,3,4];    % 1 -> 3 -> 4
+Path14      = [1,4];      % 1 -> 4 (direct)
 
-% Path for demands (1,4), (2,3), (2,4)
-Path124     = [1,2,4];
-Path134     = [1,3,4];
-Path14      = [1,4];
+% --- Demand 2->3: three candidate paths ---
+Path243     = [2,4,3];    % 2 -> 4 -> 3
+Path213     = [2,1,3];    % 2 -> 1 -> 3
+Path2143    = [2,1,4,3];  % 2 -> 1 -> 4 -> 3
 
-Path243     = [2,4,3];
-Path213     = [2,1,3];
-Path2143    = [2,1,4,3];
+% --- Demand 2->4: three candidate paths ---
+Path24      = [2,4];      % 2 -> 4 (direct)
+Path2134    = [2,1,3,4];  % 2 -> 1 -> 3 -> 4
+Path214     = [2,1,4];    % 2 -> 1 -> 4
 
-Path24      = [2,4];
-Path2134    = [2,1,3,4];
-Path214     = [2,1,4];
-
-% Path Span Number
+% --- Route length (sum of link distances along each path) ---
 RouteLength124  = 10;
 RouteLength134  = 13;
 RouteLength14   = 25;
@@ -52,7 +64,7 @@ RouteLength24   = 2;
 RouteLength2134 = 21;
 RouteLength214  = 33;
 
-% Path Capacity
+% --- Capacity per lightpath on each route [Gbps] ---
 Capacity124   = 100;
 Capacity134   = 100;
 Capacity14    = 100;
@@ -65,7 +77,7 @@ Capacity24    = 250;
 Capacity2134  = 100;
 Capacity214   = 50;
 
-% Path Index;
+% --- Path name -> row index mapping ---
 pathIdx = containers.Map('KeyType', 'char', 'ValueType', 'int32');
 pathIdx('p124') = 1;
 pathIdx('p134') = 2;
@@ -77,6 +89,7 @@ pathIdx('p24')  = 7;
 pathIdx('p2134')= 8;
 pathIdx('p214') = 9;
 
+% String array of all path names (for display purposes)
 pathStr = ["p124", 
     "p134", 
     "p14", 
@@ -87,45 +100,62 @@ pathStr = ["p124",
     "p2134", 
     "p214"];
 
+% Solver options (suppress console output)
 lpopts = optimoptions("linprog",    Display="off");
 ipopts = optimoptions("intlinprog", Display="off");
 
-%% Initialize wavelength configuration set
+%% 3. Initialize wavelength configuration pool
+%  A "configuration" defines which paths are active on ONE wavelength.
+%  Each configuration is described by:
+%    T  (3x1) : carried capacity for each demand [d14, d23, d24]
+%    isTransActive (9x1) : binary indicator — which of the 9 paths are ON
+%    noTrans : number of active transceivers in this configuration
+%
+%  We seed the pool with 3 trivial single-path configurations.
 
-% Config1 : 'p124'
-T1             = [100;0;0]; % demands (1,4), (2,3), (2,4)
+% Config 1: only path p124 active -> serves demand (1,4) with 100 Gbps
+T1             = [100;0;0];
 isTransActive1 = [1;0;0;0;0;0;0;0;0];
 noTrans1       = sum(isTransActive1);
 
-% Config2  : 'p243'
+% Config 2: only path p243 active -> serves demand (2,3) with 100 Gbps
 T2             = [0;100;0];
 isTransActive2 = [0;0;0;1;0;0;0;0;0];
 noTrans2       = sum(isTransActive2);
 
-% Config3  : 'p24'
+% Config 3: only path p24 active  -> serves demand (2,4) with 250 Gbps
 T3             = [0;0;250]; 
 isTransActive3 = [0;0;0;0;0;0;1;0;0];
 noTrans3       = sum(isTransActive3);
 
-tranCapacityArray = [T1,T2,T3];
-isTransActiveArray= [isTransActive1, isTransActive2, isTransActive3];
+% Aggregate initial columns into matrices (each column = one config)
+tranCapacityArray = [T1,T2,T3];         % 3 x nConfigs
+isTransActiveArray= [isTransActive1, isTransActive2, isTransActive3]; % 9 x nConfigs
 
 noConfigs         = size(tranCapacityArray,1);
 
-NumTransArray     = [noTrans1, noTrans2, noTrans3];
+NumTransArray     = [noTrans1, noTrans2, noTrans3]; % 1 x nConfigs
 
-%% while - loop
-reducedCost       = inf;
-tranCapacityArray = [T1,T2,T3];
+%% 4. Column Generation loop
+%  Iterate between RMP and Pricing until no improving column exists.
+reducedCost       = inf;             % initialize to enter the loop
+tranCapacityArray = [T1,T2,T3];      % reset column pool
 sols              = struct('T',[], 'a', [], 'x',[]);
-while reducedCost>=1e-6
-    %% Add new column into the set
+
+while reducedCost >= 1e-6
+    % -------------------------------------------------------
+    % 4a. Append the new configuration found by Pricing
+    %     (first iteration: sols fields are empty, so nothing is added)
+    % -------------------------------------------------------
     tranCapacityArray  = [tranCapacityArray,  sols.T' ];
     NumTransArray      = [NumTransArray,      sols.a'];
     isTransActiveArray = [isTransActiveArray, sols.x' ];
     
-    %% solve Restricted Master Problem with relaxing variables
-    % Create variables representing the number of each pattern used
+    % -------------------------------------------------------
+    % 4b. Solve Restricted Master Problem (LP-relaxed)
+    % -------------------------------------------------------
+    %  Decision variable z(k): how many wavelengths use configuration k
+    %  (continuous relaxation -> fractional z allowed)
     rwaprob = ...
           optimproblem('Description','Max Throughput - RMP',...
           'ObjectiveSense', 'maximize');
@@ -134,30 +164,36 @@ while reducedCost>=1e-6
         'Type', 'continuous');
     TN  = optimvar('TN', 1, 'LowerBound', 0, 'Type', 'continuous');
     
+    % Demand-capacity coupling: carried capacity >= proportional share
     rwaprob.Constraints.DemandCapcity14  = ...
         normalized_demand_matrix(1,4)*TN <= tranCapacityArray(1,:)*z;
     rwaprob.Constraints.DemandCapcity23  = ...
         normalized_demand_matrix(2,3)*TN <= tranCapacityArray(2,:)*z;
     rwaprob.Constraints.DemandCapcity24  = ...
         normalized_demand_matrix(2,4)*TN <= tranCapacityArray(3,:)*z;
+
+    % Total wavelength usage <= W
     rwaprob.Constraints.Wavelength = sum(z)<=maxWavelengths;
+
+    % Transceiver budget
     rwaprob.Constraints.TransceiverCost = NumTransArray*z<=maxTransceivers;
 
-    % The objective is the number of logs used
+    % Objective: maximize network throughput
     rwaprob.Objective.netwThroughput = TN;
 
     [valueRMP, maxThroughput, exitflag,~,lambda_RMP] = solve(rwaprob,'options',lpopts);
-    % % NOTE: FOR MATLAB, LAMBDA is LAGRANGE MULTIPLIXER;
-    % % We only need the dual variable, which is the opposite of the lagrange multiplexer;
-    % % So, we should convert it by ourselves
-    % % This will be used in dual objective value;
-    signOfMatlabSolver = -1; % to all lambda;
+
+    % --- Extract dual variables (shadow prices) ---
+    %  MATLAB returns Lagrange multipliers with opposite sign to the
+    %  standard dual variable convention, so we flip them here.
+    signOfMatlabSolver = -1;
     lambda_RMP.Constraints.DemandCapcity14 = signOfMatlabSolver * lambda_RMP.Constraints.DemandCapcity14;
     lambda_RMP.Constraints.DemandCapcity23 = signOfMatlabSolver * lambda_RMP.Constraints.DemandCapcity23;
     lambda_RMP.Constraints.DemandCapcity24 = signOfMatlabSolver * lambda_RMP.Constraints.DemandCapcity24;
     lambda_RMP.Constraints.Wavelength      = signOfMatlabSolver * lambda_RMP.Constraints.Wavelength;
     lambda_RMP.Constraints.TransceiverCost = signOfMatlabSolver * lambda_RMP.Constraints.TransceiverCost;
 
+    % Print RMP solution and dual values
     fprintf('(Relaxed RMP) Maximal network throughput %g [Gbps]\n',valueRMP.TN);
     fprintf("\t\tz=[%s]\n", strjoin(string(valueRMP.z'), ", "));
     vals = structfun(@(x) x, lambda_RMP.Constraints);
@@ -165,7 +201,17 @@ while reducedCost>=1e-6
     fprintf("\t\t[%s]", strjoin(compose("%s=%.4f", string(names), vals), ", "));
     fprintf('\n');
 
-    %% solve Pricing problem and Choose a column
+    % -------------------------------------------------------
+    % 4c. Solve Pricing Sub-problem
+    % -------------------------------------------------------
+    %  Find a NEW wavelength configuration (x, T, a) that has the
+    %  largest reduced cost.  If reduced cost <= 0, no improving
+    %  column exists and CG terminates.
+    %
+    %  Variables:
+    %    x(p) in {0,1} : whether path p is active in this configuration
+    %    T(d)          : capacity delivered to demand d
+    %    a             : number of transceivers used
     subproblem = optimproblem('Description','New Configuration - Pricing',...
         'ObjectiveSense', 'maximize');
     T  = optimvar('T', ["14","23","24"], 'LowerBound', 0, 'Type', 'continuous');
@@ -175,21 +221,23 @@ while reducedCost>=1e-6
         'LowerBound', 0, 'Type', 'integer');
     a  = optimvar('a', 'LowerBound', 0, 'Type', 'integer');
 
-    subproblem.Constraints.WavelengthNonOverlapping12  = ...
-        x('p124') <= 1; % Non-overlapping for LINK12
-    subproblem.Constraints.WavelengthNonOverlapping13 = ...
-        x('p134') + x('p213') + x('p2134')  <= 1;%  LINK13
-    subproblem.Constraints.WavelengthNonOverlapping14 = ...
-        x('p14') + x('p2143') + x('p214')  <= 1;% LINK14
-    subproblem.Constraints.WavelengthNonOverlapping24 = ...
-        x('p124') + x('p243') + x('p24')   <= 1; % LINK24
-    subproblem.Constraints.WavelengthNonOverlapping34 = ...
-        x('p134') + x('p2134')             <= 1; %  LINK34
-    subproblem.Constraints.WavelengthNonOverlapping21 = ...% LINK21
+    % Wavelength clash-free: at most one path per link in this config
+    subproblem.Constraints.WavelengthNonOverlapping12  = ...  % Link 1->2
+        x('p124') <= 1;
+    subproblem.Constraints.WavelengthNonOverlapping13 = ...   % Link 1->3
+        x('p134') + x('p213') + x('p2134')  <= 1;
+    subproblem.Constraints.WavelengthNonOverlapping14 = ...   % Link 1->4
+        x('p14') + x('p2143') + x('p214')  <= 1;
+    subproblem.Constraints.WavelengthNonOverlapping24 = ...   % Link 2->4
+        x('p124') + x('p243') + x('p24')   <= 1;
+    subproblem.Constraints.WavelengthNonOverlapping34 = ...   % Link 3->4
+        x('p134') + x('p2134')             <= 1;
+    subproblem.Constraints.WavelengthNonOverlapping21 = ...   % Link 2->1
         x('p213') + x('p2143')  + x('p2134') + x('p214') <= 1;
-    subproblem.Constraints.WavelengthNonOverlapping43 = ...
-        x('p243') + x('p2143')             <= 1;% LINK43
+    subproblem.Constraints.WavelengthNonOverlapping43 = ...   % Link 4->3
+        x('p243') + x('p2143')             <= 1;
 
+    % Capacity delivered per demand = sum of active path capacities
     subproblem.Constraints.DemandCapcity14  = ...
         T('14') == sum(Capacity124 * x('p124') + Capacity134 * x('p134') + Capacity14   * x('p14'));
     subproblem.Constraints.DemandCapcity23  = ...
@@ -197,9 +245,11 @@ while reducedCost>=1e-6
     subproblem.Constraints.DemandCapcity24  = ...
         T('24') == sum(Capacity24  * x('p24')  + Capacity2134* x('p2134')+ Capacity214  * x('p214'));
 
+    % Transceiver count = total active paths
     subproblem.Constraints.CostLimit = ...
         sum(x)==a;
 
+    % Reduced cost = dual(demand) * T - dual(transceiver) * a - dual(wavelength)
     subproblem.Objective.ReducedCost =  ...
         + lambda_RMP.Constraints.DemandCapcity14*T('14') ...
         + lambda_RMP.Constraints.DemandCapcity23*T('23') ...
@@ -207,19 +257,24 @@ while reducedCost>=1e-6
         - lambda_RMP.Constraints.TransceiverCost*a ...
         - lambda_RMP.Constraints.Wavelength ...
         ;
+
     [sols,reducedCost,exitflag,~,~] = solve(subproblem,'options',ipopts);
+
+    % --- Check termination ---
     if reducedCost <= 1e-6
-        fprintf('(Prcing)Reduced cost =%g',reducedCost);
-        fprintf('\t\tskip\n\n');
+        fprintf('(Pricing) Reduced cost = %g',reducedCost);
+        fprintf('\t\tNo improving column -> CG converged\n\n');
         break;
     else
-        fprintf('(Prcing)Reduced cost =%g',reducedCost);
+        fprintf('(Pricing) Reduced cost = %g',reducedCost);
         fprintf('\t\tAdd configuration {%s}\n\n',strjoin(pathStr(logical(sols.x)),','));
     end
 end
 
 
-%% Solve RMP with integer variables
+%% 5. Re-solve RMP with integer variables
+%  The CG loop used LP relaxation; now fix z to integers for a valid
+%  wavelength assignment.
 
 z.Type = 'integer';
 [valueRMP, maxThroughput, exitflag,~,lambda_RMP] = solve(rwaprob,'options',ipopts);
@@ -229,15 +284,18 @@ fprintf(' (Integer RMP) Maximal network throughput %g [Gbps]\n',valueRMP.TN);
 for i = 1:length(valueRMP.z)
     nConfigs = round(valueRMP.z(i));
     if nConfigs >= 1
+        % Find which paths are active in configuration i
         activeIdx = cellfun(@(p) isTransActiveArray(pathIdx(p), i) > 0, pathStr);
         pathNames   = strjoin(string(pathStr(activeIdx)), ", ");
         fprintf(' configurations {%s} in %d times \n', pathNames, nConfigs);
     end
 end
 
-%% Assign a wavelength to each configuration
-wStart = 1;
-i      = 1;
+%% 6. Map configurations to actual wavelengths and visualize
+%  Each configuration k occupies z(k) consecutive wavelength slots.
+%  We walk through configurations and fill the (link x wavelength) matrix.
+
+wStart = 1;  % next available wavelength slot
 link12 = zeros(1,maxWavelengths);
 link13 = zeros(1,maxWavelengths);
 link14 = zeros(1,maxWavelengths);
@@ -249,39 +307,35 @@ link43 = zeros(1,maxWavelengths);
 for i = 1:length(valueRMP.z)
     nConfigs = round(valueRMP.z(i));
     if nConfigs >= 1
-        % LINK12
-        link12((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p124'),i);
+        wRange = wStart:(wStart+nConfigs-1);  % wavelength slots for config i
 
-        % LINK13
-        link13((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p134'),i)  +  isTransActiveArray(pathIdx('p213'),i)  + isTransActiveArray(pathIdx('p2134'),i);
+        % For each link, mark occupied if any traversing path is active
+        link12(wRange) = isTransActiveArray(pathIdx('p124'),i);
 
-        % LINK14
-        link14((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p14'),i)  +  isTransActiveArray(pathIdx('p2143'),i)  + isTransActiveArray(pathIdx('p214'),i);
+        link13(wRange) = isTransActiveArray(pathIdx('p134'),i)  +  isTransActiveArray(pathIdx('p213'),i)  + isTransActiveArray(pathIdx('p2134'),i);
 
-        % LINK24
-        link24((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p124'),i)  +  isTransActiveArray(pathIdx('p243'),i)  + isTransActiveArray(pathIdx('p24'),i) ;
+        link14(wRange) = isTransActiveArray(pathIdx('p14'),i)  +  isTransActiveArray(pathIdx('p2143'),i)  + isTransActiveArray(pathIdx('p214'),i);
 
-        % LINK34
-        link34((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p134'),i)  +  isTransActiveArray(pathIdx('p2134'),i);
+        link24(wRange) = isTransActiveArray(pathIdx('p124'),i)  +  isTransActiveArray(pathIdx('p243'),i)  + isTransActiveArray(pathIdx('p24'),i) ;
 
-        % LINK21
-        link21((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p213'),i)  ...
+        link34(wRange) = isTransActiveArray(pathIdx('p134'),i)  +  isTransActiveArray(pathIdx('p2134'),i);
+
+        link21(wRange) = isTransActiveArray(pathIdx('p213'),i)  ...
             +  isTransActiveArray(pathIdx('p2143'),i) +   isTransActiveArray(pathIdx('p2134'),i) +   isTransActiveArray(pathIdx('p214'),i);
 
-        % LINK43
-        link43((wStart: (wStart+nConfigs-1))) = isTransActiveArray(pathIdx('p243'),i)  +  isTransActiveArray(pathIdx('p2143'),i) ;
-
+        link43(wRange) = isTransActiveArray(pathIdx('p243'),i)  +  isTransActiveArray(pathIdx('p2143'),i) ;
     end
-    wStart = wStart + nConfigs; % update new beginning
+    wStart = wStart + nConfigs;  % advance to next free slot
 end
 
+% --- Assemble into a (links x wavelengths) matrix and plot ---
 networkSpectrum = [link12;link13;link14;link24;link34;link21;link43];
 
-%% Plot figure
-imagesc(networkSpectrum);
+%% 7. Plot wavelength usage heatmap
+imagesc(networkSpectrum);  % yellow = occupied, blue = free
 colorbar;
 xlabel("wavelength channel");
 ylabel("link ID");
-title('link wavelength blocks');
+title('Link-Wavelength Occupation Map');
 xlim([1-0.5 8+0.5]);
 ylim([1-0.5 7+0.5]);
